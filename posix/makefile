@@ -34,7 +34,7 @@ install: $(LIBRARY)
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/include
 	cp $(LIBRARY) $(DESTDIR)$(PREFIX)/lib/$(LIBRARY)
-	cp $(HEADERS) $(DESTDIR)$(PREFIX)/include
+	cp $(foreach header,$(HEADERS),../$(header)) $(DESTDIR)$(PREFIX)/include
 
 .PHONY: uninstall
 uninstall:
