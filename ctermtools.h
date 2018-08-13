@@ -13,7 +13,7 @@
 #define TT_NORMAL     (0)       /**< Normal attribute. Only valid by itself. */
 #define TT_BOLD       (1 << 0)  /**< Make colors more visible. @deprecated attroff(TT_BOLD) does not work on xterm. */
 #define TT_UNDERLINE  (1 << 1)  /**< Underline. Typically not supported in pure text environments. */
-#define TT_BLINK      (1 << 2)  /**< Blinking text */
+#define TT_BLINK      (1 << 2)  /**< Blinking text. Does not work on Windows. */
 #define TT_INVERT     (1 << 3)  /**< Swap the foreground and background */
 
 #define TT_FG_DEFAULT (1 << 4)  /**< Default foreground (text) color */
