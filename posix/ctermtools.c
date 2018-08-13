@@ -6,7 +6,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-#include "ctermtools.h"
+#include "../ctermtools.h"
 #include <stdio.h>
 #include <stdint.h>
 
