@@ -1,12 +1,14 @@
 /** @file ctermtools.c
-*
-* Copyright (c) 2018 Jonathan Lemos
-*
-* This software may be modified and distributed under the terms
-* of the MIT license.  See the LICENSE file for details.
-*/
+ *
+ * Copyright (c) 2018 Jonathan Lemos
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
 
+#define TT_EXPORTING
 #include "../ctermtools.h"
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <conio.h>
 
@@ -130,7 +132,7 @@ void tt_attroff(uint_fast32_t attr){
 	SetConsoleTextAttribute(hConsole, csbi.wAttributes);
 }
 
-void tt_attrclear(uint_fast32_t attr) {
+void tt_attrclear(void) {
 	tt_attroff(TT_UNDERLINE | TT_INVERT | TT_FG_WHITE | TT_BG_WHITE);
 }
 
@@ -156,16 +158,16 @@ int tt_getcols(void) {
 	return csbi.dwSize.Y;
 }
 
-int tt_showcursor(int enable) {
+void tt_showcursor(int enable) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO cci;
 
 	if (!hConsole || !GetConsoleCursorInfo(hConsole, &cci)) {
-		return -1;
+		return;
 	}
 
 	cci.bVisible = enable;
-	return SetConsoleCursorInfo(hConsole, &cci) ? 0 : -1;
+	SetConsoleCursorInfo(hConsole, &cci) ? 0 : -1;
 }
 
 int tt_setecho(int enable) {
@@ -198,11 +200,11 @@ void tt_movecursorpos(int row_delta, int col_delta) {
 	int col_max = tt_getcols();
 
 	if (!hConsole || !GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-		return -1;
+		return;
 	}
 
-	csbi.dwCursorPosition += row_delta;
-	csbi.dwCursorPosition += col_delta;
+	csbi.dwCursorPosition.Y += row_delta;
+	csbi.dwCursorPosition.X += col_delta;
 	SetConsoleCursorPosition(hConsole, csbi.dwCursorPosition);
 }
 
@@ -231,9 +233,9 @@ void tt_clear(void) {
 int tt_getch(void) {
 	int c = 0;
 	do {
-		c = getch();
-		if (c == VK_ESCAPE) {
-			c = getch();
+		c = _getch();
+		if (c == 224) {
+			c = _getch();
 			switch (c) {
 			case 72:
 				return KEY_UP;
@@ -245,6 +247,12 @@ int tt_getch(void) {
 				return KEY_RIGHT;
 			}
 		}
-	} while (c == EOF);
+		if (c == '\r') {
+			return KEY_ENTER;
+		}
+		if (c == 8) {
+			return KEY_BACKSPACE;
+		}
+	} while (c == 0);
 	return c;
 }

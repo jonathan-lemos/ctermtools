@@ -10,6 +10,23 @@
 
 #include <stdint.h>
 
+#if defined(_MSC_VER)
+	#ifdef TT_EXPORTING
+		#define TT_API __declspec(dllexport)
+	#else
+		#define TT_API __declspec(dllimport)
+	#endif
+#elif defined(__GNUC__)
+	#ifdef TT_EXPORTING
+		#define TT_API __attribute__((visibility("default")))
+	#else
+		#define TT_API
+	#endif
+#else
+#define TT_API
+#error Unknown dynamic link export/import notation
+#endif
+
 #define TT_NORMAL     (0)       /**< Normal attribute. Only valid by itself. */
 #define TT_BOLD       (1 << 0)  /**< Make colors more visible. @deprecated attroff(TT_BOLD) does not work on xterm. */
 #define TT_UNDERLINE  (1 << 1)  /**< Underline. Typically not supported in pure text environments. */
@@ -50,7 +67,7 @@
  * ```
  * This command would apply an underline and a bright red foreground color to all text printed afterwards.
  */
-void tt_attron(uint_fast32_t attr);
+void TT_API tt_attron(uint_fast32_t attr);
 
 /**
  * Turns terminal attributes off.
@@ -68,27 +85,27 @@ void tt_attron(uint_fast32_t attr);
  * @bug tt_attroff(TT_FG_BRIGHT) does not revert to normal version of color.
  * @bug tt_attroff(TT_BOLD) does not work on xterm.
  */
-void tt_attroff(uint_fast32_t attr);
+void TT_API tt_attroff(uint_fast32_t attr);
 
 /**
  * Turns all terminal attributes off.
  * @see tt_attron()
  */
-void tt_attrclear(void);
+void TT_API tt_attrclear(void);
 
 /**
  * Gets the number of columns (width) of the current terminal window.
  *
  * @return The width of the current terminal window in columns.
  */
-int tt_getcols(void);
+int TT_API tt_getcols(void);
 
 /**
  * Gets the number of rows (height) of the current terminal window.
  *
  * @return The height of the current terminal window in rows.
  */
-int tt_getrows(void);
+int TT_API tt_getrows(void);
 
 /**
  * Shows or hides the terminal cursor.
@@ -96,7 +113,7 @@ int tt_getrows(void);
  * @param enable This should be 1 to show the cursor and 0 to hide it.<br>
  * Other values result in undefined behavior.
  */
-void tt_showcursor(int enable);
+void TT_API tt_showcursor(int enable);
 
 /**
  * Disables or enables echoing of user input.
@@ -107,7 +124,7 @@ void tt_showcursor(int enable);
  *
  * @return 0 on success, negative on failure.
  */
-int tt_setecho(int enable);
+int TT_API tt_setecho(int enable);
 
 /**
  * Sets the cursor position on the screen.
@@ -119,7 +136,7 @@ int tt_setecho(int enable);
  * @param row The row to set the cursor's position to.
  * @param col The column to set the cursor's position to.
  */
-void tt_setcursorpos(int row, int col);
+void TT_API tt_setcursorpos(int row, int col);
 
 /**
  * Moves the cursor relative to its current position.
@@ -130,12 +147,12 @@ void tt_setcursorpos(int row, int col);
  * @param col_delta How many columns to move the cursor to the right.<br>
  * If a negative value is passed, the cursor moves to the left instead.
  */
-void tt_movecursorpos(int row_delta, int col_delta);
+void TT_API tt_movecursorpos(int row_delta, int col_delta);
 
 /**
  * Clears the screen.
  */
-void tt_clear(void);
+void TT_API tt_clear(void);
 
 #define KEY_UP        (-2)     /**< Up arrow */
 #define KEY_DOWN      (-3)     /**< Down arrow */
@@ -164,6 +181,6 @@ void tt_clear(void);
  * @see KEY_ENTER
  * @see KEY_BACKSPACE
  */
-int tt_getch(void);
+int TT_API tt_getch(void);
 
 #endif

@@ -232,6 +232,7 @@ void test_getch(void){
 }
 
 int main(void){
+	printf("This line should not be displayed.");
 	test_clear();
 	test_showcursorecho();
 	test_getch();
