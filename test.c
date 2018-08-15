@@ -29,6 +29,11 @@ void test_attron(void){
 	tt_attroff(TT_FG_RED);
 	printf("\n");
 
+	tt_attron(TT_FG_RED | TT_BOLD);
+	printf("FG_RED + BOLD");
+	tt_attroff(TT_FG_RED | TT_BOLD);
+	printf("\n");
+
 	tt_attron(TT_FG_GREEN);
 	printf("FG_GREEN");
 	tt_attroff(TT_FG_GREEN);
