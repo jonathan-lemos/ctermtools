@@ -12,128 +12,148 @@
 #include <Windows.h>
 #include <conio.h>
 
-void tt_attron(uint_fast32_t attr) {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
+static uint_fast32_t attr_cur = 0;
 
-	if (!hConsole || !GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+static void invert(int enabled, HANDLE hConsole, LPWORD word_ptr) {
+	static int on = 0;
+	DWORD fg_col = 0;
+	DWORD bg_col = 0;
+
+	if (enabled == on) {
 		return;
 	}
+	on = enabled;
+	
+	if ((*word_ptr) & FOREGROUND_RED) {
+		bg_col |= BACKGROUND_RED;
+	}
+	if ((*word_ptr) & FOREGROUND_GREEN) {
+		bg_col |= BACKGROUND_GREEN;
+	}
+	if ((*word_ptr) & FOREGROUND_BLUE) {
+		bg_col |= BACKGROUND_BLUE;
+	}
+	if ((*word_ptr) & FOREGROUND_INTENSITY) {
+		bg_col |= BACKGROUND_INTENSITY;
+	}
+	if ((*word_ptr) & BACKGROUND_RED) {
+		fg_col |= FOREGROUND_RED;
+	}
+	if ((*word_ptr) & BACKGROUND_GREEN) {
+		fg_col |= FOREGROUND_GREEN;
+	}
+	if ((*word_ptr) & BACKGROUND_BLUE) {
+		fg_col |= FOREGROUND_BLUE;
+	}
+	if ((*word_ptr) & BACKGROUND_INTENSITY) {
+		fg_col |= FOREGROUND_INTENSITY;
+	}
+	(*word_ptr) &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY |
+		BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
 
-	if (attr & TT_UNDERLINE) {
-		csbi.wAttributes |= COMMON_LVB_UNDERSCORE;
-	}
-	if (attr & TT_INVERT) {
-		csbi.wAttributes |= COMMON_LVB_REVERSE_VIDEO;
-	}
-
-	if (attr & TT_FG_BRIGHT) {
-		csbi.wAttributes |= FOREGROUND_INTENSITY;
-	}
-	if (attr & TT_FG_DEFAULT) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | BACKGROUND_INTENSITY);
-		csbi.wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-	}
-	if (attr & TT_FG_BLACK) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-	}
-	if (attr & TT_FG_RED) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		csbi.wAttributes |= FOREGROUND_RED;
-	}
-	if (attr & TT_FG_GREEN) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		csbi.wAttributes |= FOREGROUND_GREEN;
-	}
-	if (attr & TT_FG_YELLOW) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		csbi.wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN;
-	}
-	if (attr & TT_FG_BLUE) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		csbi.wAttributes |= FOREGROUND_BLUE;
-	}
-	if (attr & TT_FG_MAGENTA) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		csbi.wAttributes |= FOREGROUND_BLUE | FOREGROUND_RED;
-	}
-	if (attr & TT_FG_CYAN) {
-		csbi.wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		csbi.wAttributes |= FOREGROUND_GREEN | FOREGROUND_BLUE;
-	}
-	if (attr & TT_FG_WHITE) {
-		csbi.wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-	}
-
-	if (attr & TT_BG_BRIGHT) {
-		csbi.wAttributes |= BACKGROUND_INTENSITY;
-	}
-	if (attr & TT_BG_DEFAULT) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
-		csbi.wAttributes |= BACKGROUND_INTENSITY;
-	}
-	if (attr & TT_BG_BLACK) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-	}
-	if (attr & TT_BG_RED) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-		csbi.wAttributes |= BACKGROUND_RED;
-	}
-	if (attr & TT_BG_GREEN) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-		csbi.wAttributes |= BACKGROUND_GREEN;
-	}
-	if (attr & TT_BG_YELLOW) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-		csbi.wAttributes |= BACKGROUND_RED | BACKGROUND_GREEN;
-	}
-	if (attr & TT_BG_BLUE) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-		csbi.wAttributes |= BACKGROUND_BLUE;
-	}
-	if (attr & TT_BG_MAGENTA) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-		csbi.wAttributes |= BACKGROUND_BLUE | BACKGROUND_RED;
-	}
-	if (attr & TT_BG_CYAN) {
-		csbi.wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
-		csbi.wAttributes |= BACKGROUND_GREEN | BACKGROUND_BLUE;
-	}
-	if (attr & TT_BG_WHITE) {
-		csbi.wAttributes |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
-	}
-
-	SetConsoleTextAttribute(hConsole, csbi.wAttributes);
+	(*word_ptr) |= (fg_col | bg_col);
 }
 
-void tt_attroff(uint_fast32_t attr){
+static void tt_apply(void) {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	WORD wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 
-	if (!hConsole || !GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+	if (!hConsole) {
 		return;
 	}
-	
-	if (attr & TT_UNDERLINE){
-		csbi.wAttributes &= ~(COMMON_LVB_UNDERSCORE);
+
+	if (attr_cur & TT_FG_DEFAULT) {
+		wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 	}
-	if (attr & TT_INVERT){
-		csbi.wAttributes &= ~(COMMON_LVB_REVERSE_VIDEO);
+	if (attr_cur & TT_FG_BLACK) {
+		wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+	}
+	if (attr_cur & TT_FG_RED) {
+		wAttributes &= ~(FOREGROUND_GREEN | FOREGROUND_BLUE);
+		wAttributes |= FOREGROUND_RED;
+	}
+	if (attr_cur & TT_FG_GREEN) {
+		wAttributes &= ~(FOREGROUND_RED | FOREGROUND_BLUE);
+		wAttributes |= FOREGROUND_GREEN;
+	}
+	if (attr_cur & TT_FG_YELLOW) {
+		wAttributes &= ~(FOREGROUND_BLUE);
+		wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN;
+	}
+	if (attr_cur & TT_FG_BLUE) {
+		wAttributes &= ~(FOREGROUND_RED | FOREGROUND_GREEN);
+		wAttributes |= FOREGROUND_BLUE;
+	}
+	if (attr_cur & TT_FG_MAGENTA) {
+		wAttributes &= ~(FOREGROUND_GREEN);
+		wAttributes |= FOREGROUND_BLUE | FOREGROUND_RED;
+	}
+	if (attr_cur & TT_FG_CYAN) {
+		wAttributes &= ~(FOREGROUND_RED);
+		wAttributes |= FOREGROUND_GREEN | FOREGROUND_BLUE;
+	}
+	if (attr_cur & TT_FG_WHITE) {
+		wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+	}
+	if (attr_cur & TT_FG_BRIGHT) {
+		wAttributes |= FOREGROUND_INTENSITY;
 	}
 
-	if (attr & (TT_FG_RED | TT_FG_GREEN | TT_FG_YELLOW | TT_FG_BLUE | TT_FG_MAGENTA | TT_FG_CYAN | TT_FG_WHITE)){
-		tt_attron(TT_FG_DEFAULT);
+	if (attr_cur & TT_BG_DEFAULT) {
+		wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+	}
+	if (attr_cur & TT_BG_BLACK) {
+		wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+	}
+	if (attr_cur & TT_BG_RED) {
+		wAttributes &= ~(BACKGROUND_GREEN | BACKGROUND_BLUE);
+		wAttributes |= BACKGROUND_RED;
+	}
+	if (attr_cur & TT_BG_GREEN) {
+		wAttributes &= ~(BACKGROUND_RED | BACKGROUND_BLUE);
+		wAttributes |= BACKGROUND_GREEN;
+	}
+	if (attr_cur & TT_BG_YELLOW) {
+		wAttributes &= ~(BACKGROUND_BLUE);
+		wAttributes |= BACKGROUND_RED | BACKGROUND_GREEN;
+	}
+	if (attr_cur & TT_BG_BLUE) {
+		wAttributes &= ~(BACKGROUND_RED | BACKGROUND_GREEN);
+		wAttributes |= BACKGROUND_BLUE;
+	}
+	if (attr_cur & TT_BG_MAGENTA) {
+		wAttributes &= ~(BACKGROUND_GREEN);
+		wAttributes |= BACKGROUND_BLUE | BACKGROUND_RED;
+	}
+	if (attr_cur & TT_BG_CYAN) {
+		wAttributes &= ~(BACKGROUND_RED);
+		wAttributes |= BACKGROUND_GREEN | BACKGROUND_BLUE;
+	}
+	if (attr_cur & TT_BG_WHITE) {
+		wAttributes |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+	}
+	if (attr_cur & TT_BG_BRIGHT) {
+		wAttributes |= BACKGROUND_INTENSITY;
 	}
 
-	if (attr & (TT_BG_RED | TT_BG_GREEN | TT_BG_YELLOW | TT_BG_BLUE | TT_BG_MAGENTA | TT_BG_CYAN | TT_BG_WHITE)){
-		tt_attron(TT_BG_DEFAULT);
-	}
+	invert(attr_cur & TT_INVERT ? 1 : 0, hConsole, &wAttributes);
+	SetConsoleTextAttribute(hConsole, wAttributes);
+}
 
-	SetConsoleTextAttribute(hConsole, csbi.wAttributes);
+void tt_attron(uint_fast32_t attr) {
+	attr_cur |= attr;
+	tt_apply();
+}
+
+void tt_attroff(uint_fast32_t attr) {
+	attr_cur &= ~(attr);
+	tt_apply();
 }
 
 void tt_attrclear(void) {
-	tt_attroff(TT_UNDERLINE | TT_INVERT | TT_FG_WHITE | TT_BG_WHITE);
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	attr_cur = TT_FG_DEFAULT | TT_BG_DEFAULT;
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 }
 
 int tt_getrows(void) {
@@ -144,7 +164,7 @@ int tt_getrows(void) {
 		return -1;
 	}
 
-	return csbi.dwSize.X;
+	return csbi.srWindow.Right - csbi.srWindow.Left + 1;
 }
 
 int tt_getcols(void) {
@@ -155,7 +175,7 @@ int tt_getcols(void) {
 		return -1;
 	}
 
-	return csbi.dwSize.Y;
+	return csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 }
 
 void tt_showcursor(int enable) {

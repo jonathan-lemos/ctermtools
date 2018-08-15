@@ -39,6 +39,11 @@ void test_attron(void){
 	tt_attroff(TT_FG_YELLOW);
 	printf("\n");
 
+	tt_attron(TT_FG_BLUE);
+	printf("FG_BLUE");
+	tt_attroff(TT_FG_BLUE);
+	printf("\n");
+
 	tt_attron(TT_FG_MAGENTA);
 	printf("FG_MAGENTA");
 	tt_attroff(TT_FG_MAGENTA);
@@ -129,64 +134,64 @@ void test_attron(void){
 	tt_attroff(TT_BG_WHITE);
 	printf("\n");
 
-	tt_attron(TT_BG_BLACK | TT_FG_BRIGHT);
+	tt_attron(TT_BG_BLACK | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_BLACK");
-	tt_attroff(TT_BG_BLACK | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_BLACK | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_RED | TT_FG_BRIGHT);
+	tt_attron(TT_BG_RED | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_RED");
-	tt_attroff(TT_BG_RED | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_RED | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_GREEN | TT_FG_BRIGHT);
+	tt_attron(TT_BG_GREEN | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_GREEN");
-	tt_attroff(TT_BG_GREEN | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_GREEN | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_YELLOW | TT_FG_BRIGHT);
+	tt_attron(TT_BG_YELLOW | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_YELLOW");
-	tt_attroff(TT_BG_YELLOW | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_YELLOW | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_BLUE | TT_FG_BRIGHT);
+	tt_attron(TT_BG_BLUE | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_BLUE");
-	tt_attroff(TT_BG_BLUE | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_BLUE | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_MAGENTA | TT_FG_BRIGHT);
+	tt_attron(TT_BG_MAGENTA | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_MAGENTA");
-	tt_attroff(TT_BG_MAGENTA | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_MAGENTA | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_CYAN | TT_FG_BRIGHT);
+	tt_attron(TT_BG_CYAN | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_CYAN");
-	tt_attroff(TT_BG_CYAN | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_CYAN | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_BG_WHITE | TT_FG_BRIGHT);
+	tt_attron(TT_BG_WHITE | TT_BG_BRIGHT);
 	printf("BG_BRIGHT_WHITE");
-	tt_attroff(TT_BG_WHITE | TT_FG_BRIGHT);
+	tt_attroff(TT_BG_WHITE | TT_BG_BRIGHT);
 	printf("\n");
 
-	tt_attron(TT_FG_RED | TT_BG_CYAN | TT_BLINK);
-	printf("FG_RED + BG_CYAN + BLINK");
+	tt_attron(TT_FG_RED | TT_BG_GREEN | TT_INVERT);
+	printf("FG_RED + BG_GREEN + INVERT");
 	tt_attrclear();
 	printf("\n");
 }
 
-void test_getcolsrows(void){
+void test_getcolsrows(void) {
 	printf("tt_getcols(): %d\ntt_getrows(): %d\n", tt_getcols(), tt_getrows());
 }
 
-void test_clear(void){
+void test_clear(void) {
 	int c;
 	tt_clear();
 	printf("tt_clear() test: This should be the first line on the screen.\nPress ENTER to continue...");
 	while ((c = getchar()) != '\n' && c != EOF);
 }
 
-void test_showcursorecho(void){
+void test_showcursorecho(void) {
 	int c;
 	/* stops the cursor from blinking */
 	tt_showcursor(0);
@@ -198,12 +203,12 @@ void test_showcursorecho(void){
 	tt_setecho(1);
 }
 
-void test_getch(void){
+void test_getch(void) {
 	char c;
 	printf("Getch test:\nPress ENTER to continue...\n");
-	do{
+	do {
 		c = tt_getch();
-		switch (c){
+		switch (c) {
 		case KEY_UP:
 			printf("[UP ARROW]");
 			break;
@@ -227,12 +232,12 @@ void test_getch(void){
 		default:
 			printf("%c", c);
 		}
-	}while (c != KEY_ENTER);
+	} while (c != KEY_ENTER);
 	printf("\n");
 }
 
-int main(void){
-	printf("This line should not be displayed.");
+int main(void) {
+	printf("This line should not be displayed.\n");
 	test_clear();
 	test_showcursorecho();
 	test_getch();
