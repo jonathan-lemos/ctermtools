@@ -14,165 +14,157 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-void tt_attron(uint_fast32_t attr){
-	if (attr & TT_BOLD){
+static uint_fast32_t attr_cur;
+
+static void tt_apply(void){
+	if (attr_cur & TT_BOLD){
 		printf("\033[1m");
 	}
-	if (attr & TT_UNDERLINE){
+	if (attr_cur & TT_UNDERLINE){
 		printf("\033[4m");
 	}
-	if (attr & TT_BLINK){
+	if (attr_cur & TT_BLINK){
 		printf("\033[5m");
 	}
-	if (attr & TT_INVERT){
+	if (attr_cur & TT_INVERT){
 		printf("\033[7m");
 	}
 
-	if (attr & TT_FG_BRIGHT){
-		if (attr & TT_FG_DEFAULT){
+	if (attr_cur & TT_FG_BRIGHT){
+		if (attr_cur & TT_FG_DEFAULT){
 			printf("\033[39m");
 		}
-		if (attr & TT_FG_BLACK){
+		if (attr_cur & TT_FG_BLACK){
 			printf("\033[90m");
 		}
-		if (attr & TT_FG_RED){
+		if (attr_cur & TT_FG_RED){
 			printf("\033[91m");
 		}
-		if (attr & TT_FG_GREEN){
+		if (attr_cur & TT_FG_GREEN){
 			printf("\033[92m");
 		}
-		if (attr & TT_FG_YELLOW){
+		if (attr_cur & TT_FG_YELLOW){
 			printf("\033[93m");
 		}
-		if (attr & TT_FG_BLUE){
+		if (attr_cur & TT_FG_BLUE){
 			printf("\033[94m");
 		}
-		if (attr & TT_FG_MAGENTA){
+		if (attr_cur & TT_FG_MAGENTA){
 			printf("\033[95m");
 		}
-		if (attr & TT_FG_CYAN){
+		if (attr_cur & TT_FG_CYAN){
 			printf("\033[96m");
 		}
-		if (attr & TT_FG_WHITE){
+		if (attr_cur & TT_FG_WHITE){
 			printf("\033[97m");
 		}
 	}
 	else{
-		if (attr & TT_FG_DEFAULT){
+		if (attr_cur & TT_FG_DEFAULT){
 			printf("\033[39m");
 		}
-		if (attr & TT_FG_BLACK){
+		if (attr_cur & TT_FG_BLACK){
 			printf("\033[30m");
 		}
-		if (attr & TT_FG_RED){
+		if (attr_cur & TT_FG_RED){
 			printf("\033[31m");
 		}
-		if (attr & TT_FG_GREEN){
+		if (attr_cur & TT_FG_GREEN){
 			printf("\033[32m");
 		}
-		if (attr & TT_FG_YELLOW){
+		if (attr_cur & TT_FG_YELLOW){
 			printf("\033[33m");
 		}
-		if (attr & TT_FG_BLUE){
+		if (attr_cur & TT_FG_BLUE){
 			printf("\033[34m");
 		}
-		if (attr & TT_FG_MAGENTA){
+		if (attr_cur & TT_FG_MAGENTA){
 			printf("\033[35m");
 		}
-		if (attr & TT_FG_CYAN){
+		if (attr_cur & TT_FG_CYAN){
 			printf("\033[36m");
 		}
-		if (attr & TT_FG_WHITE){
+		if (attr_cur & TT_FG_WHITE){
 			printf("\033[37m");
 		}
 	}
 
-	if (attr & TT_BG_BRIGHT){
-		if (attr & TT_BG_DEFAULT){
+	if (attr_cur & TT_BG_BRIGHT){
+		if (attr_cur & TT_BG_DEFAULT){
 			printf("\033[49m");
 		}
-		if (attr & TT_BG_BLACK){
+		if (attr_cur & TT_BG_BLACK){
 			printf("\033[100m");
 		}
-		if (attr & TT_BG_RED){
+		if (attr_cur & TT_BG_RED){
 			printf("\033[101m");
 		}
-		if (attr & TT_BG_GREEN){
+		if (attr_cur & TT_BG_GREEN){
 			printf("\033[102m");
 		}
-		if (attr & TT_BG_YELLOW){
+		if (attr_cur & TT_BG_YELLOW){
 			printf("\033[103m");
 		}
-		if (attr & TT_BG_BLUE){
+		if (attr_cur & TT_BG_BLUE){
 			printf("\033[104m");
 		}
-		if (attr & TT_BG_MAGENTA){
+		if (attr_cur & TT_BG_MAGENTA){
 			printf("\033[105m");
 		}
-		if (attr & TT_BG_CYAN){
+		if (attr_cur & TT_BG_CYAN){
 			printf("\033[106m");
 		}
-		if (attr & TT_BG_WHITE){
+		if (attr_cur & TT_BG_WHITE){
 			printf("\033[107m");
 		}
 
 	}
 	else{
-		if (attr & TT_BG_DEFAULT){
+		if (attr_cur & TT_BG_DEFAULT){
 			printf("\033[49m");
 		}
-		if (attr & TT_BG_BLACK){
+		if (attr_cur & TT_BG_BLACK){
 			printf("\033[40m");
 		}
-		if (attr & TT_BG_RED){
+		if (attr_cur & TT_BG_RED){
 			printf("\033[41m");
 		}
-		if (attr & TT_BG_GREEN){
+		if (attr_cur & TT_BG_GREEN){
 			printf("\033[42m");
 		}
-		if (attr & TT_BG_YELLOW){
+		if (attr_cur & TT_BG_YELLOW){
 			printf("\033[43m");
 		}
-		if (attr & TT_BG_BLUE){
+		if (attr_cur & TT_BG_BLUE){
 			printf("\033[44m");
 		}
-		if (attr & TT_BG_MAGENTA){
+		if (attr_cur & TT_BG_MAGENTA){
 			printf("\033[45m");
 		}
-		if (attr & TT_BG_CYAN){
+		if (attr_cur & TT_BG_CYAN){
 			printf("\033[46m");
 		}
-		if (attr & TT_BG_WHITE){
+		if (attr_cur & TT_BG_WHITE){
 			printf("\033[47m");
 		}
 	}
 }
 
+void tt_attron(uint_fast32_t attr){
+	attr_cur |= attr;
+	printf("\033[0m");
+	tt_apply();
+}
+
 void tt_attroff(uint_fast32_t attr){
-	if (attr & TT_BOLD){
-		printf("\033[21m");
-	}
-	if (attr & TT_UNDERLINE){
-		printf("\033[24m");
-	}
-	if (attr & TT_BLINK){
-		printf("\033[25m");
-	}
-	if (attr & TT_INVERT){
-		printf("\033[27m");
-	}
-
-	if (attr & (TT_FG_RED | TT_FG_GREEN | TT_FG_YELLOW | TT_FG_BLUE | TT_FG_MAGENTA | TT_FG_CYAN | TT_FG_WHITE)){
-		printf("\033[39m");
-	}
-
-	if (attr & (TT_BG_RED | TT_BG_GREEN | TT_BG_YELLOW | TT_BG_BLUE | TT_BG_MAGENTA | TT_BG_CYAN | TT_BG_WHITE)){
-		printf("\033[49m");
-	}
+	attr_cur &= ~(attr);
+	printf("\033[0m");
+	tt_apply();
 }
 
 void tt_attrclear(void){
 	printf("\033[0m");
+	attr_cur = 0;
 }
 
 int tt_getcols(void){

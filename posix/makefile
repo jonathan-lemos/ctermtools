@@ -14,7 +14,7 @@ HEADERS=$(foreach file,$(FILES),$(file).h)
 $(LIBRARY): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -shared -o $(LIBRARY)
 
-test: test.o
+test: ../test.o
 	$(CC) $(CFLAGS) $(OBJECTS) test.o -o test -lctermtools
 
 %.o: %.c
