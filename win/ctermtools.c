@@ -95,7 +95,7 @@ static void tt_apply(void) {
 	if (attr_cur & TT_FG_WHITE) {
 		wAttributes |= FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 	}
-	if (attr_cur & TT_FG_BRIGHT) {
+	if (attr_cur & (TT_FG_BRIGHT | TT_BOLD)) {
 		wAttributes |= FOREGROUND_INTENSITY;
 	}
 

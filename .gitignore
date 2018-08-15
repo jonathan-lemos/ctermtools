@@ -1,2 +1,11 @@
 ﻿/.vs
 win/ctermtools_vs/.vs/
+win/ctermtools_vs/Debug/*
+!win/ctermtools_vs/Debug/copy_lib.bat
+win/ctermtools_vs/ctermtools_vs/Debug/
+win/ctermtools_vs/ctermtools_test/Debug/
+win/ctermtools_vs/Release/*
+!win/ctermtools_vs/Release/copy_lib.bat
+win/ctermtools_vs/ctermtools_vs/Release/
+win/cterntools_vs/ctermtools_test/Release/
+win/ctermtools_vs/ctermtools_test/ctermtools.lib
