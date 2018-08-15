@@ -10,7 +10,7 @@ To install the library:
 
 ```shell
 git clone https://github.com/jonathanrlemos/ctermtools.git
-cd ctermtools
+cd ctermtools/posix
 make
 sudo make install
 ```
