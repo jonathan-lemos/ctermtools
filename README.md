@@ -4,9 +4,13 @@ Lightweight set of terminal UI functions.
 Includes colors, underlining, getch(), disabling/enabling echo, hiding/showing the cursor, and more.
 
 ## Installation
+
+### Posix (Linux, OSX, BSD, etc.)
 To install the library:
 
 ```shell
+git clone https://github.com/jonathanrlemos/ctermtools.git
+cd ctermtools
 make
 sudo make install
 ```
@@ -30,6 +34,12 @@ make test
 ./test
 ```
 This must be done after installing the library.
+
+### Windows (Visual Studio)
+
+1. Clone the repository.
+2. Open ctermtools\\win\\ctermtools\_vs\\ctermtools\_vs.sln.
+3. Build ctermtools to build the dll, or build ctermtools\_test to build the test executable.
 
 ## Documentation
 Type the following to build the documentation:
